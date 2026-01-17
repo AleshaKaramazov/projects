@@ -1,7 +1,7 @@
 use crate::type_expr::type_name;
 
 
-pub fn parse_let_func(text: &str) -> String {
+pub fn parse_let_expr(text: &str) -> String {
     /*
     it can be like (i want to realize 3 words only) 
     1) "let name:= read_"
@@ -13,9 +13,8 @@ pub fn parse_let_func(text: &str) -> String {
     7) "let name : String = read_"
     8) "let nmame :String=read_"
     */    
-    let mut answer = String::new();
+    let mut answer = String::from("\tlet mut ");
     if let Some((name, expr)) = text.split_once(':') {
-        answer.push_str("    let mut ");
         let mut per_name = "";
         if let Some(name) = name.split_whitespace().nth(1) {
             per_name = name;
@@ -24,8 +23,10 @@ pub fn parse_let_func(text: &str) -> String {
         }
         if let Some((type_n, expr)) = expr.split_once('=') {
             let typed = type_name(type_n.trim());
-            answer.push(':');
-            answer.push_str(typed);
+            if !typed.is_empty() {
+                answer.push(':');
+                answer.push_str(typed);
+            }
             if let Some((command, expr)) 
                     = expr.trim().split_once('!') 
                     && command.starts_with("считать") {
@@ -35,7 +36,7 @@ pub fn parse_let_func(text: &str) -> String {
                         \t\tio::stdout().flush()?;\n\
                         \t\tlet mut for_read = String::new();\n\
                         \t\tio::stdin().read_line(&mut for_read)?;\n", expr));
-                if typed != "String" {
+                if typed != "String" && !typed.is_empty() {
                     answer.push_str(&format!("\n\
                         \t\t{} = match for_read.trim().parse::<{}>() {{\n\
                         \t\t\tOk(res) => res,\n\
@@ -47,7 +48,7 @@ pub fn parse_let_func(text: &str) -> String {
                     \t}}", per_name, typed, typed));
                 } else {
                     answer.push_str(
-                        &format!("\t\t{} = for_read;", per_name));
+                        &format!("\t\t{} = for_read;\n\t}}\n", per_name));
                 }
             } else {
                 answer.push_str("= ");

@@ -6,6 +6,6 @@ pub fn type_name(name: &str) -> &str {
         "Логич" => "bool",
         "Цел" => "i32",
         "Строка" => "String",
-        _=> name,
+        _=> "",
     }
 }
