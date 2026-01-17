@@ -1,7 +1,9 @@
-use std::{fs::{self, File}, io::{self, Write}};
+use std::{env, fs::{self, File}, io::{self, Write}};
 mod let_expr;
 mod type_expr;
 mod if_expr;
+mod write_expr;
+use write_expr::parse_write_expr;
 use if_expr::parse_if_expr;
 use let_expr::parse_let_expr;
 
@@ -36,8 +38,10 @@ fn parse_expr(line: &str, mut end_depth: i32, output: &mut File) -> io::Result<i
     }
     else if line.starts_with("пусть") {
         writeln!(output, "{}", parse_let_expr(line))?;
-    } else if line.starts_with("если") {
+    } else if line.starts_with("если") || line.starts_with("иначе") {
         writeln!(output, "{}", parse_if_expr(line))?;
+    } else if line.starts_with("написать") {
+        writeln!(output, "{}", parse_write_expr(line))?;
     }
     Ok(end_depth) 
 }
@@ -54,7 +58,12 @@ fn parse_file(text: String, mut output: File) -> io::Result<()> {
 }
 
 fn main() -> io::Result<()> {
-    let filename = "alg.абв";
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        println!("использование: cargo run -- [ИМЯ ФАЙЛА].абв");
+        return Ok(())
+    }
+    let filename = &args[1];
     let new_filename = 
         format!("{}.rs", filename.strip_suffix(".абв").unwrap());
 
@@ -62,6 +71,7 @@ fn main() -> io::Result<()> {
     let mut file = File::create(new_filename)?;
     writeln!(file, "\
     #![allow(unused)]\n\
+    #![allow(warnings)]\n\
     use std::io::{{self, Write}};\n")?; 
     parse_file(text, file)
 }
