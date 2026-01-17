@@ -20,10 +20,10 @@ fn parse_expr(line: &str, mut end_depth: i32, output: &mut File) -> io::Result<i
                 writeln!(output, "{} {{", name)?;
             }
         }
-    } else if line.starts_with("Начало") {
+    } else if line.starts_with("начало") || line.starts_with("Начало") {
         end_depth+=1; 
         writeln!(output, "{{")?; 
-    } else if line.starts_with("Конец") {
+    } else if line.starts_with("конец") || line.starts_with("Конец"){
         if end_depth == 1 {
            writeln!(output, "\tOk(())\n}}")?; 
            return Ok(end_depth);
@@ -31,8 +31,9 @@ fn parse_expr(line: &str, mut end_depth: i32, output: &mut File) -> io::Result<i
             end_depth-=1;
             writeln!(output, "}}")?;
         }
-    }
-    else if line.starts_with("пусть") {
+    } else if line.starts_with("сломать") {
+        writeln!(output, "break;")?;
+    } else if line.starts_with("пусть") {
         writeln!(output, "{}", parse_let_expr(line))?;
     } else if line.starts_with("если") || line.starts_with("иначе") {
         writeln!(output, "{}", parse_if_expr(line))?;

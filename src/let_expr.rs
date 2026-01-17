@@ -32,20 +32,20 @@ pub fn parse_let_expr(text: &str) -> String {
                     && command.starts_with("считать") {
                 answer.push_str(";");
                 answer.push_str(&format!("\n\t{{\n\
-                        \t\tprint!{};\n\
-                        \t\tio::stdout().flush()?;\n\
-                        \t\tlet mut for_read = String::new();\n\
-                        \t\tio::stdin().read_line(&mut for_read)?;\n", expr));
+                        print!{};\n\
+                        io::stdout().flush()?;\n\
+                        let mut for_read = String::new();\n\
+                        io::stdin().read_line(&mut for_read)?;\n", expr));
                 if typed != "String" && !typed.is_empty() {
                     answer.push_str(&format!("\n\
-                        \t\t{} = match for_read.trim().parse::<{}>() {{\n\
-                        \t\t\tOk(res) => res,\n\
-                        \t\t\tErr(e) => {{\n\
-                        \t\t\t\teprintln!(\"ошибка перевода в {}\");\n\
-                        \t\t\t\treturn Ok(());\n\
-                        \t\t\t}},\n\
-                        \t\t}}\n\
-                    \t}}", per_name, typed, typed));
+                        {} = match for_read.trim().parse::<{}>() {{\n\
+                        Ok(res) => res,\n\
+                        Err(e) => {{\n\
+                        eprintln!(\"ошибка перевода в {}\");\n\
+                        return Ok(());\n\
+                        }},\n\
+                        }}\n\
+                    }}", per_name, typed, typed));
                 } else {
                     answer.push_str(
                         &format!("\t\t{} = for_read;\n\t}}\n", per_name));
